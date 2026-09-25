@@ -2,8 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function Cart() {
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const cartKey = user
+    ? `cart_user_${user.id}`
+    : "cart_guest";
+
   const [cart, setCart] = useState(
-    JSON.parse(localStorage.getItem("cart")) || []
+    JSON.parse(localStorage.getItem(cartKey)) || []
   );
 
   const removeFromCart = (indexToRemove) => {
@@ -12,26 +18,48 @@ function Cart() {
     );
 
     setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.setItem(
+      cartKey,
+      JSON.stringify(updatedCart)
+    );
   };
 
   const total = cart.reduce(
-    (sum, item) => sum + item.price,
+    (sum, item) => sum + Number(item.price),
     0
   );
 
   return (
     <div className="cart-page">
+      <div className="home-brand">
+        <div className="home-brand-name">
+          <span>Tech</span>Hub
+        </div>
+
+        <div className="home-brand-tagline">
+          TECH • STORE
+        </div>
+      </div>
+
       <h1>Your Cart</h1>
 
       {cart.length === 0 ? (
-        <p className="empty-cart">Your cart is empty.</p>
+        <p className="empty-cart">
+          Your cart is empty.
+        </p>
       ) : (
         <>
           <div className="cart-items">
             {cart.map((item, index) => (
               <div className="cart-item" key={index}>
-                <img src={item.image} alt={item.name} />
+                <img
+                  src={
+                    item.image?.startsWith("http")
+                      ? item.image
+                      : `http://localhost:5000/images/${item.image}`
+                  }
+                  alt={item.name}
+                />
 
                 <div className="cart-item-details">
                   <h3>{item.name}</h3>
@@ -50,10 +78,28 @@ function Cart() {
           </div>
 
           <div className="cart-total">
-            <h2>Total: ₹{total}</h2>
+            <div className="cart-total-info">
+              <span>Total Items</span>
+              <span>{cart.length}</span>
+            </div>
 
-            <Link to="/payment" className="checkout-button">
-                Proceed to Checkout
+            <div className="cart-total-price">
+              <span>Total</span>
+              <strong>₹{total.toFixed(2)}</strong>
+            </div>
+
+            <Link
+              to="/payment"
+              className="checkout-button"
+            >
+              Proceed to Checkout
+            </Link>
+
+            <Link
+              to="/products"
+              className="continue-shopping-link"
+            >
+              Continue Shopping
             </Link>
           </div>
         </>

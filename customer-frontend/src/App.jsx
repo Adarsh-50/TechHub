@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 import "./App.css";
 import Navbar from "./components/Navbar";
 import Products from "./pages/Products";
@@ -7,55 +7,78 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Payment from "./pages/Payment";
+import Profile from "./pages/Profile";
 
 function Home() {
-  const featuredProducts = [
-    {
-      name: "Gaming Laptop",
-      category: "Laptops",
-      price: 74999,
-      image:
-        "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500",
-    },
-    {
-      name: "Smartphone",
-      category: "Mobiles",
-      price: 34999,
-      image:
-        "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=500",
-    },
-    {
-      name: "Wireless Headphones",
-      category: "Accessories",
-      price: 4999,
-      image:
-        "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500",
-    },
-    {
-      name: "Smart Watch",
-      category: "Wearables",
-      price: 7999,
-      image:
-        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
-    },
-  ];
+  const user = JSON.parse(localStorage.getItem("user"));
 
+  const cartKey = user
+    ? `cart_user_${user.id}`
+    : "cart_guest";
+
+  const [featuredProducts, setFeaturedProducts] = useState([]);
   const [cart, setCart] = useState(
-    JSON.parse(localStorage.getItem("cart")) || []
+    JSON.parse(localStorage.getItem(cartKey)) || []
   );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchFeaturedProducts = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        "http://localhost:5000/api/products?page=1&limit=4"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+
+      const data = await response.json();
+
+      setFeaturedProducts(data.products);
+    } catch (error) {
+      setError("Unable to load featured products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFeaturedProducts();
+  }, []);
 
   const addToCart = (product) => {
     const updatedCart = [...cart, product];
 
     setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    localStorage.setItem(
+      cartKey,
+      JSON.stringify(updatedCart)
+    );
   };
 
   return (
     <div>
       <section className="hero">
+        <div className="home-brand">
+          <div className="home-brand-name">
+            <span>Tech</span>Hub
+          </div>
+
+          <div className="home-brand-tagline">
+            TECH • STORE
+          </div>
+        </div>
+
         <h1>Upgrade Your Tech</h1>
-        <p>Discover the latest electronics at the best prices.</p>
+
+        <p>
+          Discover the latest electronics at the best prices.
+        </p>
+
         <Link to="/products" className="shop-button">
           Shop Now
         </Link>
@@ -64,35 +87,50 @@ function Home() {
       <section className="featured-section">
         <h2>Featured Products</h2>
 
-        <div className="product-grid">
-          {featuredProducts.map((product, index) => (
-            <div className="product-card" key={index}>
-              <img src={product.image} alt={product.name} />
+        {loading && <p>Loading featured products...</p>}
 
-              <h3>{product.name}</h3>
+        {error && <p>{error}</p>}
 
-              <p>{product.category}</p>
+        {!loading && !error && (
+          <div className="product-grid">
+            {featuredProducts.map((product) => (
+              <div className="product-card" key={product.id}>
+                <img
+                  src={`http://localhost:5000/images/${product.image}`}
+                  alt={product.name}
+                />
 
-              <h3>₹{product.price}</h3>
+                <h3>{product.name}</h3>
 
-              <button
-                className="add-cart-button"
-                onClick={() => addToCart(product)}
-              >
-                Add to Cart
-              </button>
-            </div>
-          ))}
-        </div>
+                <p>{product.category}</p>
+
+                <h3>₹{product.price}</h3>
+
+                <button
+                  className="add-cart-button"
+                  onClick={() => addToCart(product)}
+                >
+                  Add to Cart
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );
 }
 
 function App() {
+  const location = useLocation();
+
+  const hideNavbar =
+    location.pathname === "/login" ||
+    location.pathname === "/register";
+
   return (
     <>
-      <Navbar />
+      {!hideNavbar && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Home />} />
@@ -101,6 +139,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </>
   );

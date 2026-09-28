@@ -1,6 +1,7 @@
 const Product = require("../models/Product");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const OrderItem = require("../models/OrderItem");
 
 const getDashboard = async (req, res) => {
   try {
@@ -26,6 +27,14 @@ const getDashboard = async (req, res) => {
         {
           model: User,
           attributes: ["id", "name", "email"],
+        },
+        {
+          model: OrderItem,
+          include: [
+            {
+              model: Product,
+            },
+          ],
         },
       ],
     });

@@ -19,7 +19,7 @@ const getProducts = async (req, res) => {
       const result = await Product.findAndCountAll({
         limit,
         offset,
-        order: [["createdAt", "DESC"]],
+        order: [[[["id", "ASC"]],]],
       });
 
       products = result.rows;

@@ -2,6 +2,7 @@ const Order = require("../models/Order");
 const OrderItem = require("../models/OrderItem");
 const Product = require("../models/Product");
 const User = require("../models/User");
+const OrderHistory = require("../models/OrderHistory");
 
 const createOrder = async (req, res) => {
   try {
@@ -176,8 +177,25 @@ const updateOrderStatus = async (req, res) => {
       });
     }
 
+    const previousStatus = order.status;
+
+    // Do not create history if the status did not change
+    if (previousStatus === status) {
+      return res.json({
+        message: "Order status is already the same",
+        order,
+      });
+    }
+
     await order.update({
       status,
+    });
+
+    await OrderHistory.create({
+      orderId: order.id,
+      adminUserId: req.user.id,
+      previousStatus,
+      newStatus: status,
     });
 
     res.json({
@@ -192,10 +210,38 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+
+const getOrderHistory = async (req, res) => {
+  try {
+    const history = await OrderHistory.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["id", "name", "email"],
+        },
+        {
+          model: Order,
+          attributes: ["id"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json(history);
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching order history",
+      error: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createOrder,
   getOrders,
   getMyOrders,
   getOrderById,
   updateOrderStatus,
+  getOrderHistory,
 };

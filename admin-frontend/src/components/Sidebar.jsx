@@ -37,10 +37,16 @@ function Sidebar() {
       </div>
 
       <nav>
-        <Link to="/">Dashboard</Link>
+        <Link to="/">
+          Dashboard
+        </Link>
 
         <Link to="/products">
           Products
+        </Link>
+
+        <Link to="/verify-products">
+          Verify Products
         </Link>
 
         <Link to="/orders">

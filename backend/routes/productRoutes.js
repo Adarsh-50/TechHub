@@ -4,6 +4,8 @@ const {
   getProducts,
   getProductById,
   createProduct,
+  getPendingProducts,
+  verifyProduct,
   updateProduct,
   deleteProduct,
 } = require("../controllers/productController");
@@ -13,18 +15,36 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
-// Get all products
+// Get all verified products
 router.get("/", getProducts);
 
-// Get single product
+// Get single verified product
 router.get("/:id", getProductById);
 
 // Create product - Admin/Super Admin
+// New products will be created with "Pending" status
 router.post(
   "/",
   authenticateToken,
   authorizeRoles("admin", "superadmin"),
   createProduct
+);
+
+// Get products waiting for verification
+// Admin/Super Admin only
+router.get(
+  "/pending/list",
+  authenticateToken,
+  authorizeRoles("admin", "superadmin"),
+  getPendingProducts
+);
+
+// Verify product - Admin/Super Admin
+router.put(
+  "/:id/verify",
+  authenticateToken,
+  authorizeRoles("admin", "superadmin"),
+  verifyProduct
 );
 
 // Update product - Admin/Super Admin

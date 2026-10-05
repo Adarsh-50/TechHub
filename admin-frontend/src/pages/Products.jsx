@@ -19,6 +19,10 @@ function Products() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // Success popup for edited products
+  const [updateSuccessProduct, setUpdateSuccessProduct] =
+    useState(null);
+
   const fetchProducts = async (page = currentPage) => {
     try {
       setLoading(true);
@@ -72,6 +76,9 @@ function Products() {
 
       const token = localStorage.getItem("adminToken");
 
+      // Store whether this was an edit before clearing editingProduct
+      const wasEditing = Boolean(editingProduct);
+
       const url = editingProduct
         ? `http://localhost:5000/api/products/${editingProduct.id}`
         : "http://localhost:5000/api/products";
@@ -111,6 +118,11 @@ function Products() {
       setShowForm(false);
 
       await fetchProducts(currentPage);
+
+      // Show success popup only when editing a product
+      if (wasEditing) {
+        setUpdateSuccessProduct(data.product);
+      }
     } catch (error) {
       setError(
         error.message || "Unable to save product"
@@ -197,6 +209,20 @@ function Products() {
     setError("");
   };
 
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingProduct(null);
+
+    setFormData({
+      name: "",
+      category: "",
+      price: "",
+      stock: "",
+    });
+
+    setError("");
+  };
+
   return (
     <div className="products-page">
 
@@ -227,80 +253,102 @@ function Products() {
         </p>
       )}
 
+      {/* Add/Edit Product Modal */}
       {showForm && (
-        <div className="product-form">
-          <h2>
-            {editingProduct
-              ? "Edit Product"
-              : "Add Product"}
-          </h2>
+        <div className="product-modal-overlay">
 
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="name"
-              placeholder="Product Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
+          <div className="product-modal">
 
-            <input
-              type="text"
-              name="category"
-              placeholder="Category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-            />
+            <div className="product-modal-header">
+              <h2>
+                {editingProduct
+                  ? "Edit Product"
+                  : "Add Product"}
+              </h2>
 
-            <input
-              type="number"
-              name="price"
-              placeholder="Price"
-              value={formData.price}
-              onChange={handleChange}
-              required
-            />
+              <button
+                type="button"
+                className="modal-close-button"
+                onClick={handleCloseForm}
+              >
+                ×
+              </button>
+            </div>
 
-            <input
-              type="number"
-              name="stock"
-              placeholder="Stock"
-              value={formData.stock}
-              onChange={handleChange}
-              required
-            />
+            <form onSubmit={handleSubmit}>
 
-            <button
-              type="submit"
-              className="save-product-button"
-            >
-              {editingProduct
-                ? "Update Product"
-                : "Add Product"}
-            </button>
+              <input
+                type="text"
+                name="name"
+                placeholder="Product Name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
 
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => {
-                setShowForm(false);
-                setEditingProduct(null);
-              }}
-            >
-              Cancel
-            </button>
-          </form>
+              <input
+                type="text"
+                name="category"
+                placeholder="Category"
+                value={formData.category}
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={formData.price}
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                type="number"
+                name="stock"
+                placeholder="Stock"
+                value={formData.stock}
+                onChange={handleChange}
+                required
+              />
+
+              <div className="product-modal-actions">
+
+                <button
+                  type="submit"
+                  className="save-product-button"
+                >
+                  {editingProduct
+                    ? "Update Product"
+                    : "Add Product"}
+                </button>
+
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={handleCloseForm}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
         </div>
       )}
 
       <div className="products-table-container">
+
         {loading ? (
           <p>Loading products...</p>
         ) : (
           <>
             <table className="products-table">
+
               <thead>
                 <tr>
                   <th>ID</th>
@@ -313,8 +361,10 @@ function Products() {
               </thead>
 
               <tbody>
+
                 {products.map((product) => (
                   <tr key={product.id}>
+
                     <td>{product.id}</td>
 
                     <td>{product.name}</td>
@@ -331,6 +381,7 @@ function Products() {
                     <td>{product.stock}</td>
 
                     <td>
+
                       <button
                         className="edit-button"
                         onClick={() =>
@@ -348,10 +399,14 @@ function Products() {
                       >
                         Delete
                       </button>
+
                     </td>
+
                   </tr>
                 ))}
+
               </tbody>
+
             </table>
 
             {totalPages > 1 && (
@@ -402,9 +457,49 @@ function Products() {
 
               </div>
             )}
+
           </>
         )}
+
       </div>
+
+      {/* Product Update Success Popup */}
+      {updateSuccessProduct && (
+        <div className="verification-success-overlay">
+
+          <div className="verification-success-popup">
+
+            <div className="verification-success-icon">
+              ✓
+            </div>
+
+            <h2>
+              Product Updated Successfully!
+            </h2>
+
+            <p>
+              <strong>
+                {updateSuccessProduct.name}
+              </strong>{" "}
+              has been updated and sent for
+              verification. An admin or superadmin
+              must verify it before it becomes
+              available again.
+            </p>
+
+            <button
+              className="verification-success-button"
+              onClick={() =>
+                setUpdateSuccessProduct(null)
+              }
+            >
+              OK
+            </button>
+
+          </div>
+
+        </div>
+      )}
 
     </div>
   );

@@ -8,6 +8,7 @@ require("./models/User");
 require("./models/Product");
 require("./models/Order");
 require("./models/OrderItem");
+require("./models/OrderHistory");
 require("./relation");
 
 const userRoutes = require("./routes/userRoutes");
@@ -37,7 +38,7 @@ const startServer = async () => {
   await connectDB();
 
   try {
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
 
     console.log("Database tables synchronized successfully!");
 

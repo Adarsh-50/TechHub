@@ -1,8 +1,14 @@
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  useLocation,
+  Navigate,
+} from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
+import VerifyProducts from "./pages/VerifyProducts";
 import Orders from "./pages/Orders";
 import Users from "./pages/Users";
 import Sidebar from "./components/Sidebar";
@@ -11,7 +17,9 @@ import "./App.css";
 
 
 function ProtectedRoute({ children }) {
-  const adminToken = localStorage.getItem("adminToken");
+  const adminToken =
+    localStorage.getItem("adminToken");
+
   const adminUser = JSON.parse(
     localStorage.getItem("adminUser")
   );
@@ -30,13 +38,16 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+
 function App() {
   const location = useLocation();
 
-  const isLoginPage = location.pathname === "/login";
+  const isLoginPage =
+    location.pathname === "/login";
 
   return (
     <div className="admin-app">
+
       {!isLoginPage && <Sidebar />}
 
       <main
@@ -46,7 +57,9 @@ function App() {
             : "admin-content"
         }
       >
+
         <Routes>
+
           <Route
             path="/login"
             element={<Login />}
@@ -71,6 +84,15 @@ function App() {
           />
 
           <Route
+            path="/verify-products"
+            element={
+              <ProtectedRoute>
+                <VerifyProducts />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/orders"
             element={
               <ProtectedRoute>
@@ -87,10 +109,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+
         </Routes>
+
       </main>
+
     </div>
   );
 }
+
 
 export default App;

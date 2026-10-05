@@ -1,7 +1,7 @@
 const { Op } = require("sequelize");
 const Product = require("../models/Product");
 
-// Get all products with search and pagination
+// Get all verified products with search and pagination
 const getProducts = async (req, res) => {
   try {
     const search = req.query.search || "";
@@ -17,9 +17,12 @@ const getProducts = async (req, res) => {
     // Normal product listing
     if (!search) {
       const result = await Product.findAndCountAll({
+        where: {
+          verificationStatus: "Verified",
+        },
         limit,
         offset,
-        order: [[[["id", "ASC"]],]],
+        order: [["id", "ASC"]],
       });
 
       products = result.rows;
@@ -65,21 +68,28 @@ const getProducts = async (req, res) => {
 
       // Main search condition
       const searchCondition = {
-        [Op.or]: [
+        [Op.and]: [
           {
-            name: {
-              [Op.like]: `%${search}%`,
-            },
+            verificationStatus: "Verified",
           },
           {
-            category: {
-              [Op.like]: `%${search}%`,
-            },
+            [Op.or]: [
+              {
+                name: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+              {
+                category: {
+                  [Op.like]: `%${search}%`,
+                },
+              },
+            ],
           },
         ],
       };
 
-      // Find all matching products first
+      // Find all matching verified products first
       let matchingProducts = await Product.findAll({
         where: searchCondition,
       });
@@ -91,7 +101,8 @@ const getProducts = async (req, res) => {
         matchingProducts = matchingProducts.filter((product) => {
           return mainCategories.some(
             (category) =>
-              product.category.toLowerCase() === category.toLowerCase()
+              product.category.toLowerCase() ===
+              category.toLowerCase()
           );
         });
       }
@@ -195,7 +206,7 @@ const getProducts = async (req, res) => {
         relatedCategories = ["Monitor Accessories"];
       }
 
-      // Find related products
+      // Find related verified products
       if (
         relatedKeywords.length > 0 &&
         relatedCategories.length > 0
@@ -207,6 +218,9 @@ const getProducts = async (req, res) => {
         relatedProducts = await Product.findAll({
           where: {
             [Op.and]: [
+              {
+                verificationStatus: "Verified",
+              },
               {
                 id: {
                   [Op.notIn]:
@@ -255,10 +269,16 @@ const getProducts = async (req, res) => {
   }
 };
 
-// Get single product
+
+// Get single verified product
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findOne({
+      where: {
+        id: req.params.id,
+        verificationStatus: "Verified",
+      },
+    });
 
     if (!product) {
       return res.status(404).json({
@@ -275,10 +295,17 @@ const getProductById = async (req, res) => {
   }
 };
 
+
 // Create product
 const createProduct = async (req, res) => {
   try {
-    const { name, category, price, stock, image } = req.body;
+    const {
+      name,
+      category,
+      price,
+      stock,
+      image,
+    } = req.body;
 
     const product = await Product.create({
       name,
@@ -286,10 +313,12 @@ const createProduct = async (req, res) => {
       price,
       stock,
       image,
+      verificationStatus: "Pending",
     });
 
     res.status(201).json({
-      message: "Product created successfully",
+      message:
+        "Product submitted for verification",
       product,
     });
   } catch (error) {
@@ -300,10 +329,35 @@ const createProduct = async (req, res) => {
   }
 };
 
-// Update product
-const updateProduct = async (req, res) => {
+
+// Get pending products
+const getPendingProducts = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const products = await Product.findAll({
+      where: {
+        verificationStatus: "Pending",
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    res.json({
+      products,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error fetching pending products",
+      error: error.message,
+    });
+  }
+};
+
+
+// Verify product
+const verifyProduct = async (req, res) => {
+  try {
+    const product = await Product.findByPk(
+      req.params.id
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -311,7 +365,51 @@ const updateProduct = async (req, res) => {
       });
     }
 
-    const { name, category, price, stock, image } = req.body;
+    if (
+      product.verificationStatus === "Verified"
+    ) {
+      return res.status(400).json({
+        message: "Product is already verified",
+      });
+    }
+
+    await product.update({
+      verificationStatus: "Verified",
+    });
+
+    res.json({
+      message: "Product verified successfully",
+      product,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Error verifying product",
+      error: error.message,
+    });
+  }
+};
+
+
+// Update product
+const updateProduct = async (req, res) => {
+  try {
+    const product = await Product.findByPk(
+      req.params.id
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found",
+      });
+    }
+
+    const {
+      name,
+      category,
+      price,
+      stock,
+      image,
+    } = req.body;
 
     await product.update({
       name,
@@ -319,10 +417,14 @@ const updateProduct = async (req, res) => {
       price,
       stock,
       image,
+
+      // Any edit requires verification again
+      verificationStatus: "Pending",
     });
 
     res.json({
-      message: "Product updated successfully",
+      message:
+        "Product updated and submitted for verification",
       product,
     });
   } catch (error) {
@@ -333,10 +435,13 @@ const updateProduct = async (req, res) => {
   }
 };
 
+
 // Delete product
 const deleteProduct = async (req, res) => {
   try {
-    const product = await Product.findByPk(req.params.id);
+    const product = await Product.findByPk(
+      req.params.id
+    );
 
     if (!product) {
       return res.status(404).json({
@@ -357,10 +462,13 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+
 module.exports = {
   getProducts,
   getProductById,
   createProduct,
+  getPendingProducts,
+  verifyProduct,
   updateProduct,
   deleteProduct,
 };

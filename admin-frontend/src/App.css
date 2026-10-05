@@ -365,7 +365,6 @@
   color: #64748b;
 }
 
-
 /* ============================= */
 /* Add Product */
 /* ============================= */
@@ -378,6 +377,7 @@
   color: white;
   font-size: 15px;
   transition: 0.2s;
+  cursor: pointer;
 }
 
 .add-product-button:hover {
@@ -385,40 +385,101 @@
 }
 
 /* ============================= */
-/* Product Form */
+/* Product Modal */
 /* ============================= */
 
-.product-form {
-  background-color: white;
-  padding: 25px;
-  border-radius: 10px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.product-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
 }
 
-.product-form h2 {
+.product-modal {
+  background-color: white;
+  width: 500px;
+  max-width: 90%;
+  padding: 25px;
+  border-radius: 10px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Modal Header */
+
+.product-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.product-form form {
+.product-modal-header h2 {
+  margin: 0;
+}
+
+/* Close Button */
+
+.modal-close-button {
+  border: none;
+  background: none;
+  font-size: 28px;
+  color: #64748b;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close-button:hover {
+  color: #0f172a;
+}
+
+/* Modal Form */
+
+.product-modal form {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
 }
 
-.product-form input {
+.product-modal input {
   padding: 11px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.product-modal input:focus {
+  outline: none;
+  border-color: #0f172a;
+}
+
+/* Modal Buttons */
+
+.product-modal-actions {
+  grid-column: 1 / -1;
+
+  display: flex;
+  gap: 10px;
 }
 
 .save-product-button,
 .cancel-button {
+  flex: 1;
   padding: 11px;
   border: none;
   border-radius: 6px;
   color: white;
   transition: 0.2s;
+  cursor: pointer;
 }
 
 .save-product-button {
@@ -788,4 +849,438 @@
 .sidebar nav .sidebar-logout-button:hover {
   background-color: #1e293b;
   transform: translateX(4px);
+}
+
+/* ============================= */
+/* Verify Products */
+/* ============================= */
+
+.verify-products-page {
+  width: 100%;
+}
+
+.verify-products-brand {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.verify-products-brand-name {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.verify-products-brand-name span {
+  color: #2563eb;
+}
+
+.verify-products-brand-tagline {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: #64748b;
+  margin-top: -5px;
+}
+
+.verify-products-header {
+  margin-bottom: 25px;
+}
+
+.verify-products-header h1 {
+  margin-bottom: 5px;
+}
+
+.verify-products-header p {
+  color: #64748b;
+  margin: 0;
+}
+
+.verify-products-message {
+  color: #64748b;
+}
+
+.verify-products-error {
+  color: #dc2626;
+  background-color: #fee2e2;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+.pending-products-container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pending-product-card {
+  background-color: white;
+  padding: 22px;
+  border-radius: 10px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.pending-product-details h2 {
+  margin: 0 0 12px 0;
+}
+
+.pending-product-details p {
+  margin: 6px 0;
+  color: #475569;
+}
+
+.pending-status {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 5px;
+
+  background-color: #fef3c7;
+  color: #92400e;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pending-product-actions {
+  flex-shrink: 0;
+}
+
+.verify-product-button {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 6px;
+
+  background-color: #0f172a;
+  color: white;
+
+  font-size: 14px;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.verify-product-button:hover {
+  transform: scale(1.03);
+}
+
+.verify-product-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.no-pending-products {
+  background-color: white;
+  padding: 35px;
+  border-radius: 10px;
+
+  text-align: center;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.no-pending-products h2 {
+  margin-bottom: 8px;
+}
+
+.no-pending-products p {
+  color: #64748b;
+}
+
+/* ============================= */
+/* Verification Success Popup */
+/* ============================= */
+
+.verification-success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgba(0, 0, 0, 0.45);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 2000;
+}
+
+.verification-success-popup {
+  width: 420px;
+  max-width: 90%;
+
+  background-color: white;
+
+  padding: 30px;
+
+  border-radius: 12px;
+
+  text-align: center;
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.2);
+}
+
+.verification-success-icon {
+  width: 55px;
+  height: 55px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  background-color: #dcfce7;
+  color: #16a34a;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.verification-success-popup h2 {
+  margin-bottom: 12px;
+}
+
+.verification-success-popup p {
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.verification-success-button {
+  margin-top: 15px;
+
+  padding: 11px 30px;
+
+  border: none;
+  border-radius: 6px;
+
+  background-color: #0f172a;
+  color: white;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.verification-success-button:hover {
+  transform: scale(1.03);
+}
+
+/* =========================================
+   ORDER MANAGEMENT
+========================================= */
+
+.orders-section-title {
+  margin-top: 25px;
+  margin-bottom: 12px;
+}
+
+.orders-section-title h2 {
+  margin: 0 0 4px 0;
+  font-size: 28px;
+}
+
+.orders-section-title p {
+  margin: 0;
+  color: #64748b;
+}
+
+/* =========================================
+   ORDER PAGINATION
+========================================= */
+
+.orders-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 0 5px 0;
+}
+
+.orders-pagination button {
+  padding: 8px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: white;
+  color: #0f172a;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.orders-pagination button:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+.orders-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.orders-pagination span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* =========================================
+   ORDER HISTORY
+========================================= */
+
+.order-history-section {
+  margin-top: 30px;
+}
+
+.order-history-table th,
+.order-history-table td {
+  vertical-align: middle;
+}
+
+.history-old-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #fef3c7;
+  color: #92400e;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-new-status {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  background-color: #dcfce7;
+  color: #166534;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.history-admin-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.history-admin-email {
+  margin-top: 3px;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.order-history-empty {
+  text-align: center;
+  padding: 30px 20px;
+}
+
+.order-history-empty h3 {
+  margin: 0 0 8px 0;
+  color: #0f172a;
+}
+
+.order-history-empty p {
+  margin: 0;
+  color: #64748b;
+}
+
+/* =========================================
+   ORDER STATUS COLORS
+========================================= */
+
+.order-status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Pending */
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Processing */
+.status-processing {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Shipped */
+.status-shipped {
+  background-color: #ede9fe;
+  color: #6d28d9;
+}
+
+/* Delivered */
+.status-delivered {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+/* Cancelled */
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* =========================================
+   STATUS UPDATE DROPDOWN
+========================================= */
+
+.order-status-select {
+  padding: 8px 32px 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Pending */
+.order-status-select.status-pending {
+  border: 1px solid #f59e0b;
+  background-color: #fffbeb;
+  color: #92400e;
+}
+
+/* Processing */
+.order-status-select.status-processing {
+  border: 1px solid #3b82f6;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* Shipped */
+.order-status-select.status-shipped {
+  border: 1px solid #8b5cf6;
+  background-color: #f5f3ff;
+  color: #6d28d9;
+}
+
+/* Delivered */
+.order-status-select.status-delivered {
+  border: 1px solid #22c55e;
+  background-color: #f0fdf4;
+  color: #166534;
+}
+
+/* Cancelled */
+.order-status-select.status-cancelled {
+  border: 1px solid #ef4444;
+  background-color: #fef2f2;
+  color: #b91c1c;
 }

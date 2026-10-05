@@ -33,6 +33,12 @@ const Product = sequelize.define("Product", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+
+  verificationStatus: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Pending",
+  },
 });
 
 module.exports = Product;

@@ -6,6 +6,7 @@ const {
   getMyOrders,
   getOrderById,
   updateOrderStatus,
+  getOrderHistory,
 } = require("../controllers/orderController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -26,6 +27,14 @@ router.get(
   "/my-orders",
   authMiddleware,
   getMyOrders
+);
+
+// Order History - Admin only
+router.get(
+  "/history",
+  authMiddleware,
+  roleMiddleware("admin", "superadmin"),
+  getOrderHistory
 );
 
 router.get(
